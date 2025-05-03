@@ -8,6 +8,10 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Victor & Joy Wedding", layout="wide")
 
 # === Sidebar Navigation ===
+st.sidebar.markdown("""
+    <p style="color: gray; font-size: 1em;">👉 Please click on the arrow to select a section of the wedding experience. Enjoy!</p>
+""", unsafe_allow_html=True)
+
 page = st.sidebar.selectbox("Go to", ["Wedding Card", "Wedding Program", "Wedding Navigation"])
 
 # === Helper to Show PDF ===
@@ -43,7 +47,7 @@ if page == "Wedding Card":
         if card_path.endswith(".pdf"):
             show_pdf(card_path)
         else:
-            st.image(card_path, use_container_width=True)
+            st.image(card_path, use_container_width=True, caption="Wedding Invitation - Pinch to Zoom on Mobile")
         download_button(card_path, "Download Invitation")
 
     # Scrolling Memories Section
@@ -106,7 +110,7 @@ elif page == "Wedding Program":
         if program_path.endswith(".pdf"):
             show_pdf(program_path)
         else:
-            st.image(program_path, use_container_width=True)
+            st.image(program_path, use_container_width=True, caption="Wedding Program - Pinch to Zoom on Mobile")
         download_button(program_path, "Download Wedding Program")
 
 # === Wedding Navigation Page ===
@@ -139,9 +143,14 @@ elif page == "Wedding Navigation":
                 height: 600px;
             }}
             .leaflet-routing-container {{
-                max-height: 150px;
-                overflow-y: auto;
+                max-height: 80px; /* Reduced height for mobile */
                 font-size: 12px;
+            }}
+            @media (max-width: 600px) {{
+                .leaflet-routing-container {{
+                    max-height: 70px;
+                    font-size: 10px;
+                }}
             }}
         </style>
     </head>
@@ -182,6 +191,14 @@ elif page == "Wedding Navigation":
                     routes[0].instructions.forEach(instr => {{
                         speakDirection(instr.text);
                     }});
+
+                    // Continuously speak directions as user moves along the route
+                    control.on('waypointupdated', function(e) {{
+                        const userLatLng = e.latLng;
+                        const route = e.route;
+                        const currentInstruction = route.instructions[route.instructions.length - 1].text;
+                        speakDirection(currentInstruction);
+                    }});
                 }});
             }}
 
@@ -192,6 +209,9 @@ elif page == "Wedding Navigation":
             map.on('locationfound', onLocationFound);
             map.on('locationerror', onLocationError);
             map.locate({{setView: true, maxZoom: 16}});
+
+            // Initial welcome prompt
+            speakDirection("Welcome to Victor and Joy's Wedding navigation. Please select a destination to begin.");
         </script>
     </body>
     </html>
