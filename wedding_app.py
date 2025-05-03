@@ -7,38 +7,6 @@ import streamlit.components.v1 as components
 # === Page Config ===
 st.set_page_config(page_title="Victor & Joy Wedding", layout="wide")
 
-# === Floating Prompt for Mobile ===
-st.markdown("""
-    <style>
-        .floating-button {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
-            padding: 10px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-            color: #333;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        .floating-button:hover {
-            background-color: #ddd;
-        }
-        @media (min-width: 601px) {
-            .floating-button {
-                display: none;
-            }
-        }
-    </style>
-    <div class="floating-button" onclick="window.open('javascript:window.history.back();')">
-        👉 Click to expand the sidebar
-    </div>
-""", unsafe_allow_html=True)
-
 # === Sidebar Navigation ===
 st.sidebar.markdown("""
     <p style="color: gray; font-size: 1em;">👉 Please click on the arrow to select a section of the wedding experience. Enjoy!</p>
