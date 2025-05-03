@@ -24,6 +24,15 @@ def file_exists(path, file_type="file"):
         return False
     return True
 
+# === Helper to Create Download Button ===
+def download_button(file_path, label):
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            data = f.read()
+            b64 = base64.b64encode(data).decode()
+            href = f'<a href="data:application/octet-stream;base64,{b64}" download="{os.path.basename(file_path)}">📥 {label}</a>'
+            st.markdown(href, unsafe_allow_html=True)
+
 # === Wedding Card Page ===
 if page == "Wedding Card":
     st.markdown("<h1 style='text-align: center;'>Victor & Joy's Wedding 💍</h1>", unsafe_allow_html=True)
@@ -35,6 +44,7 @@ if page == "Wedding Card":
             show_pdf(card_path)
         else:
             st.image(card_path, use_container_width=True)
+        download_button(card_path, "Download Invitation")
 
     # Scrolling Memories Section
     media_folder = "assets/media"
@@ -97,11 +107,11 @@ elif page == "Wedding Program":
             show_pdf(program_path)
         else:
             st.image(program_path, use_container_width=True)
+        download_button(program_path, "Download Wedding Program")
 
 # === Wedding Navigation Page ===
 elif page == "Wedding Navigation":
     st.markdown("<h1 style='text-align: center;'>Navigate to the Wedding Venues 📍</h1>", unsafe_allow_html=True)
-
     st.markdown("### 📌 Select a destination below to begin navigation:")
 
     venues = {
@@ -119,21 +129,26 @@ elif page == "Wedding Navigation":
     <!DOCTYPE html>
     <html>
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+        <meta charset='utf-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <link rel='stylesheet' href='https://unpkg.com/leaflet@1.2.0/dist/leaflet.css' />
+        <link rel='stylesheet' href='https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css' />
         <style>
             #map {{
                 width: 100%;
                 height: 600px;
             }}
+            .leaflet-routing-container {{
+                max-height: 150px;
+                overflow-y: auto;
+                font-size: 12px;
+            }}
         </style>
     </head>
     <body>
-        <div id="map"></div>
-        <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+        <div id='map'></div>
+        <script src='https://unpkg.com/leaflet@1.2.0/dist/leaflet.js'></script>
+        <script src='https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js'></script>
         <script>
             var map = L.map('map').fitWorld();
 
@@ -144,12 +159,30 @@ elif page == "Wedding Navigation":
             var destLatLng = L.latLng({dest_lat}, {dest_lon});
             L.marker(destLatLng).addTo(map).bindPopup("Destination: {selected_venue}").openPopup();
 
+            function speakDirection(text) {{
+                const synth = window.speechSynthesis;
+                const utter = new SpeechSynthesisUtterance(text);
+                synth.speak(utter);
+            }}
+
             function onLocationFound(e) {{
                 var userLatLng = e.latlng;
-                L.Routing.control({{
+                var control = L.Routing.control({{
                     waypoints: [userLatLng, destLatLng],
-                    routeWhileDragging: false
+                    routeWhileDragging: false,
+                    addWaypoints: false,
+                    showAlternatives: false
                 }}).addTo(map);
+
+                control.on('routesfound', function(e) {{
+                    var routes = e.routes;
+                    var summary = routes[0].summary;
+                    var steps = routes[0].instructions || [];
+                    speakDirection(`Starting route to {selected_venue}. Total distance: ${{summary.totalDistance / 1000}} kilometers.`);
+                    routes[0].instructions.forEach(instr => {{
+                        speakDirection(instr.text);
+                    }});
+                }});
             }}
 
             function onLocationError(e) {{
