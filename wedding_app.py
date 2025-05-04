@@ -127,7 +127,7 @@ if page == "Wedding Card":
 # === Wedding Program Page ===
 elif page == "Wedding Program":
     st.markdown("<h1 style='text-align: center;'>Wedding Program 📜</h1>", unsafe_allow_html=True)
-    program_path = "assets/wedding_program.jpeg"
+    program_path = "assets/wedding_program.pdf"
     if file_exists(program_path, "program file"):
         if program_path.endswith(".pdf"):
             show_pdf(program_path)
