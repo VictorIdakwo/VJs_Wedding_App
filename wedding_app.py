@@ -18,7 +18,7 @@ st.markdown("""
         font-size: 1.1em;
         font-weight: bold;
     ">
-        Please click on the Top Right Arrow  >  to select a section of the wedding experience.
+        Please click on the Top Righ Arrow  >  to select a section of the wedding experience.
     </div>
 </div>
 <style>
@@ -59,30 +59,6 @@ def download_button(file_path, label):
             href = f'<a href="data:application/octet-stream;base64,{b64}" download="{os.path.basename(file_path)}">📥 {label}</a>'
             st.markdown(href, unsafe_allow_html=True)
 
-# === Helper to Show Zoomable Image ===
-def show_zoomable_image(image_path, caption):
-    with open(image_path, "rb") as f:
-        data = base64.b64encode(f.read()).decode()
-        ext = os.path.splitext(image_path)[-1].replace(".", "")
-        st.markdown(f"""
-            <div style="overflow: auto; text-align: center;">
-                <img src="data:image/{ext};base64,{data}" 
-                     style="max-width:100%; height:auto; touch-action: none; transform-origin: center center;" 
-                     id="zoomable-img" />
-                <p style="color: gray; font-size: 0.9em;">{caption}</p>
-            </div>
-            <script>
-                const img = document.getElementById("zoomable-img");
-                let scale = 1;
-                img.addEventListener('wheel', function(e) {{
-                    e.preventDefault();
-                    scale += e.deltaY * -0.001;
-                    scale = Math.min(Math.max(.5, scale), 3);
-                    img.style.transform = `scale(${{scale}})`;
-                }});
-            </script>
-        """, unsafe_allow_html=True)
-
 # === Wedding Card Page ===
 if page == "Wedding Card":
     st.markdown("<h1 style='text-align: center;'>Victor & Joy's Wedding 💍</h1>", unsafe_allow_html=True)
@@ -93,7 +69,7 @@ if page == "Wedding Card":
         if card_path.endswith(".pdf"):
             show_pdf(card_path)
         else:
-            show_zoomable_image(card_path, "Wedding Invitation - Scroll to Zoom or Pinch on Mobile")
+            st.image(card_path, use_container_width=True, caption="Wedding Invitation - Pinch to Zoom on Mobile")
         download_button(card_path, "Download Invitation")
 
     # Scrolling Memories Section
@@ -156,7 +132,7 @@ elif page == "Wedding Program":
         if program_path.endswith(".pdf"):
             show_pdf(program_path)
         else:
-            show_zoomable_image(program_path, "Wedding Program - Scroll to Zoom or Pinch on Mobile")
+            st.image(program_path, use_container_width=True, caption="Wedding Program - Pinch to Zoom on Mobile")
         download_button(program_path, "Download Wedding Program")
 
 # === Wedding Navigation Page ===
