@@ -7,6 +7,28 @@ import streamlit.components.v1 as components
 # === Page Config ===
 st.set_page_config(page_title="Victor & Joy Wedding", layout="wide")
 
+# === Top Scrolling Notification ===
+st.markdown("""
+<div style="overflow:hidden; white-space:nowrap;">
+    <div style="
+        display:inline-block;
+        padding-left:100%;
+        animation: marquee 15s linear infinite;
+        color: #d63384;
+        font-size: 1.1em;
+        font-weight: bold;
+    ">
+        Please click on the Top Right Arrow  >  to select a section of the wedding experience.
+    </div>
+</div>
+<style>
+@keyframes marquee {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # === Sidebar Navigation ===
 st.sidebar.markdown("""
     <p style="color: gray; font-size: 1em;">👉 Please click on the arrow to select a section of the wedding experience. Enjoy!</p>
@@ -37,6 +59,30 @@ def download_button(file_path, label):
             href = f'<a href="data:application/octet-stream;base64,{b64}" download="{os.path.basename(file_path)}">📥 {label}</a>'
             st.markdown(href, unsafe_allow_html=True)
 
+# === Helper to Show Zoomable Image ===
+def show_zoomable_image(image_path, caption):
+    with open(image_path, "rb") as f:
+        data = base64.b64encode(f.read()).decode()
+        ext = os.path.splitext(image_path)[-1].replace(".", "")
+        st.markdown(f"""
+            <div style="overflow: auto; text-align: center;">
+                <img src="data:image/{ext};base64,{data}" 
+                     style="max-width:100%; height:auto; touch-action: none; transform-origin: center center;" 
+                     id="zoomable-img" />
+                <p style="color: gray; font-size: 0.9em;">{caption}</p>
+            </div>
+            <script>
+                const img = document.getElementById("zoomable-img");
+                let scale = 1;
+                img.addEventListener('wheel', function(e) {{
+                    e.preventDefault();
+                    scale += e.deltaY * -0.001;
+                    scale = Math.min(Math.max(.5, scale), 3);
+                    img.style.transform = `scale(${{scale}})`;
+                }});
+            </script>
+        """, unsafe_allow_html=True)
+
 # === Wedding Card Page ===
 if page == "Wedding Card":
     st.markdown("<h1 style='text-align: center;'>Victor & Joy's Wedding 💍</h1>", unsafe_allow_html=True)
@@ -47,7 +93,7 @@ if page == "Wedding Card":
         if card_path.endswith(".pdf"):
             show_pdf(card_path)
         else:
-            st.image(card_path, use_container_width=True, caption="Wedding Invitation - Pinch to Zoom on Mobile")
+            show_zoomable_image(card_path, "Wedding Invitation - Scroll to Zoom or Pinch on Mobile")
         download_button(card_path, "Download Invitation")
 
     # Scrolling Memories Section
@@ -110,7 +156,7 @@ elif page == "Wedding Program":
         if program_path.endswith(".pdf"):
             show_pdf(program_path)
         else:
-            st.image(program_path, use_container_width=True, caption="Wedding Program - Pinch to Zoom on Mobile")
+            show_zoomable_image(program_path, "Wedding Program - Scroll to Zoom or Pinch on Mobile")
         download_button(program_path, "Download Wedding Program")
 
 # === Wedding Navigation Page ===
@@ -173,7 +219,7 @@ elif page == "Wedding Navigation":
             function speak(text) {{
                 if (text && text !== lastSpokenInstruction) {{
                     const synth = window.speechSynthesis;
-                    synth.cancel();  // Stop any ongoing speech
+                    synth.cancel();
                     const utter = new SpeechSynthesisUtterance(text);
                     synth.speak(utter);
                     lastSpokenInstruction = text;
