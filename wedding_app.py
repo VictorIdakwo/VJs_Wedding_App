@@ -143,7 +143,7 @@ elif page == "Wedding Navigation":
                 height: 600px;
             }}
             .leaflet-routing-container {{
-                max-height: 80px; /* Reduced height for mobile */
+                max-height: 80px;
                 font-size: 12px;
             }}
             @media (max-width: 600px) {{
@@ -159,59 +159,64 @@ elif page == "Wedding Navigation":
         <script src='https://unpkg.com/leaflet@1.2.0/dist/leaflet.js'></script>
         <script src='https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js'></script>
         <script>
-            var map = L.map('map').fitWorld();
+            let lastSpokenInstruction = '';
+            let routeControl;
+            let destLatLng = L.latLng({dest_lat}, {dest_lon});
 
+            const map = L.map('map').fitWorld();
             L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
                 attribution: '&copy; OpenStreetMap contributors'
             }}).addTo(map);
 
-            var destLatLng = L.latLng({dest_lat}, {dest_lon});
-            L.marker(destLatLng).addTo(map).bindPopup("Destination: {selected_venue}").openPopup();
+            L.marker(destLatLng).addTo(map).bindPopup("Destination: {selected_venue}");
 
-            function speakDirection(text) {{
-                const synth = window.speechSynthesis;
-                const utter = new SpeechSynthesisUtterance(text);
-                synth.speak(utter);
+            function speak(text) {{
+                if (text && text !== lastSpokenInstruction) {{
+                    const synth = window.speechSynthesis;
+                    synth.cancel();  // Stop any ongoing speech
+                    const utter = new SpeechSynthesisUtterance(text);
+                    synth.speak(utter);
+                    lastSpokenInstruction = text;
+                }}
             }}
 
-            function onLocationFound(e) {{
-                var userLatLng = e.latlng;
-                var control = L.Routing.control({{
-                    waypoints: [userLatLng, destLatLng],
-                    routeWhileDragging: false,
-                    addWaypoints: false,
-                    showAlternatives: false
-                }}).addTo(map);
+            function updateRoute(position) {{
+                const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
-                control.on('routesfound', function(e) {{
-                    var routes = e.routes;
-                    var summary = routes[0].summary;
-                    var steps = routes[0].instructions || [];
-                    speakDirection(`Starting route to {selected_venue}. Total distance: ${{summary.totalDistance / 1000}} kilometers.`);
-                    routes[0].instructions.forEach(instr => {{
-                        speakDirection(instr.text);
-                    }});
+                if (routeControl) {{
+                    routeControl.setWaypoints([userLatLng, destLatLng]);
+                }} else {{
+                    routeControl = L.Routing.control({{
+                        waypoints: [userLatLng, destLatLng],
+                        routeWhileDragging: false,
+                        addWaypoints: false,
+                        showAlternatives: false,
+                        fitSelectedRoutes: true
+                    }}).addTo(map);
 
-                    // Continuously speak directions as user moves along the route
-                    control.on('waypointupdated', function(e) {{
-                        const userLatLng = e.latLng;
-                        const route = e.route;
-                        const currentInstruction = route.instructions[route.instructions.length - 1].text;
-                        speakDirection(currentInstruction);
+                    routeControl.on('routesfound', function(e) {{
+                        const routes = e.routes;
+                        if (routes.length > 0) {{
+                            const instructions = routes[0].instructions;
+                            if (instructions.length > 0) {{
+                                speak(instructions[0].text);
+                            }}
+                        }}
                     }});
-                }});
+                }}
             }}
 
-            function onLocationError(e) {{
+            function onError(error) {{
                 alert("Could not get your location. Please enable GPS or location access.");
             }}
 
-            map.on('locationfound', onLocationFound);
-            map.on('locationerror', onLocationError);
-            map.locate({{setView: true, maxZoom: 16}});
+            navigator.geolocation.watchPosition(updateRoute, onError, {{
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }});
 
-            // Initial welcome prompt
-            speakDirection("Welcome to Victor and Joy's Wedding navigation. Please select a destination to begin.");
+            speak("Welcome to Victor and Joy's Wedding navigation. Please follow the directions.");
         </script>
     </body>
     </html>
