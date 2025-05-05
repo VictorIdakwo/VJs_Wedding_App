@@ -18,7 +18,7 @@ st.markdown("""
         font-size: 1.1em;
         font-weight: bold;
     ">
-        Please click on the Top Righ Arrow  >  to select a section of the wedding experience.
+        Please click on the Top Left Arrow  >  to select a section of the wedding experience.
     </div>
 </div>
 <style>
@@ -127,13 +127,26 @@ if page == "Wedding Card":
 # === Wedding Program Page ===
 elif page == "Wedding Program":
     st.markdown("<h1 style='text-align: center;'>Wedding Program 📜</h1>", unsafe_allow_html=True)
-    program_path = "assets/wedding_program.pdf"
-    if file_exists(program_path, "program file"):
-        if program_path.endswith(".pdf"):
-            show_pdf(program_path)
-        else:
-            st.image(program_path, use_container_width=True, caption="Wedding Program - Pinch to Zoom on Mobile")
-        download_button(program_path, "Download Wedding Program")
+
+    img_path = "assets/wedding_program.jpeg"
+    pdf_path = "assets/wedding_program.pdf"
+
+    # Show the image first
+    if file_exists(img_path, "program image"):
+        st.image(img_path, use_container_width=True, caption="Wedding Program (Pinch to Zoom on Mobile)")
+    else:
+        st.warning("Preview image not found.")
+
+    # Expandable PDF viewer (if PDF exists)
+    if file_exists(pdf_path, "program file"):
+        with st.expander("📄 Tap to View Full Wedding Program PDF"):
+            show_pdf(pdf_path)
+
+        # Download PDF button
+        st.markdown("<br>", unsafe_allow_html=True)
+        download_button(pdf_path, "Download Wedding Program")
+    else:
+        st.warning("Wedding program PDF not found.")
 
 # === Wedding Navigation Page ===
 elif page == "Wedding Navigation":
