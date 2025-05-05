@@ -34,7 +34,12 @@ st.sidebar.markdown("""
     <p style="color: gray; font-size: 1em;">👉 Please click on the arrow to select a section of the wedding experience. Enjoy!</p>
 """, unsafe_allow_html=True)
 
-page = st.sidebar.selectbox("Go to", ["Wedding Card", "Wedding Program", "Wedding Navigation"])
+page = st.sidebar.selectbox("Go to", [
+    "Wedding Card",
+    "Wedding Program",
+    "Wedding Navigation",
+    "Live Stream 🎥"
+])
 
 # === Helper to Show PDF ===
 def show_pdf(file_path):
@@ -141,8 +146,6 @@ elif page == "Wedding Program":
     if file_exists(pdf_path, "program file"):
         with st.expander("📄 Tap to View Full Wedding Program PDF"):
             show_pdf(pdf_path)
-
-        # Download PDF button
         st.markdown("<br>", unsafe_allow_html=True)
         download_button(pdf_path, "Download Wedding Program")
     else:
@@ -256,8 +259,20 @@ elif page == "Wedding Navigation":
     </body>
     </html>
     """
-
     components.html(html_string, height=650)
+
+# === Live Stream Page ===
+elif page == "Live Stream 🎥":
+    st.markdown("<h1 style='text-align: center;'>🎥 Victor & Joy's Wedding – Live Stream</h1>", unsafe_allow_html=True)
+    st.markdown("Watch the wedding live on Facebook below:")
+
+    components.html("""
+        <iframe 
+            src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Fvictor.idakwo.5%2Fvideos%2F1678496659443572%2F&width=1280" 
+            width="100%" height="720" style="border:none;overflow:hidden" scrolling="no" frameborder="0" 
+            allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+        </iframe>
+    """, height=720)
 
 # === Footer ===
 st.markdown("""
