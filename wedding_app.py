@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 # === Page Config ===
 st.set_page_config(page_title="Victor & Joy Wedding", layout="wide")
 
-# === Top Scrolling Notification ===
+# === Scrolling Notification ===
 st.markdown("""
 <div style="overflow:hidden; white-space:nowrap;">
     <div style="
@@ -18,7 +18,7 @@ st.markdown("""
         font-size: 1.1em;
         font-weight: bold;
     ">
-        Please click on the Top Left Arrow  >  to select a section of the wedding experience.
+        Please explore each section of Victor & Joy's wedding using the top tabs. 💕
     </div>
 </div>
 <style>
@@ -29,33 +29,39 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# === Sidebar Navigation ===
-st.sidebar.markdown("""
-    <p style="color: gray; font-size: 1em;">👉 Please click on the arrow to select a section of the wedding experience. Enjoy!</p>
+# === Custom CSS for Smaller Tabs ===
+st.markdown("""
+    <style>
+        .streamlit-expanderHeader {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .stTabs [role='tab'] {
+            font-size: 0.8em;
+            padding: 6px 12px;
+        }
+        .stTabs {
+            font-size: 0.8em;
+        }
+        .css-1n1zfgf {
+            height: 40px;
+        }
+    </style>
 """, unsafe_allow_html=True)
 
-page = st.sidebar.selectbox("Go to", [
-    "Wedding Card",
-    "Wedding Program",
-    "Wedding Navigation",
-    "Live Stream 🎥"
-])
-
-# === Helper to Show PDF ===
+# === Helper Functions ===
 def show_pdf(file_path):
     with open(file_path, "rb") as f:
         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
         pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
         st.markdown(pdf_display, unsafe_allow_html=True)
 
-# === Helper to Check File ===
 def file_exists(path, file_type="file"):
     if not os.path.exists(path):
         st.warning(f"{file_type.capitalize()} not found at `{path}`.")
         return False
     return True
 
-# === Helper to Create Download Button ===
 def download_button(file_path, label):
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
@@ -64,8 +70,11 @@ def download_button(file_path, label):
             href = f'<a href="data:application/octet-stream;base64,{b64}" download="{os.path.basename(file_path)}">📥 {label}</a>'
             st.markdown(href, unsafe_allow_html=True)
 
-# === Wedding Card Page ===
-if page == "Wedding Card":
+# === TABS ===
+tab1, tab2, tab3, tab4 = st.tabs(["💌 Wedding Card", "📜 Wedding Program", "📍 Wedding Navigation", "🎥 Live Stream"])
+
+# === Tab 1: Wedding Card ===
+with tab1:
     st.markdown("<h1 style='text-align: center;'>Victor & Joy's Wedding 💍</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>You're Invited!</h3>", unsafe_allow_html=True)
 
@@ -77,7 +86,7 @@ if page == "Wedding Card":
             st.image(card_path, use_container_width=True, caption="Wedding Invitation - Pinch to Zoom on Mobile")
         download_button(card_path, "Download Invitation")
 
-    # Scrolling Memories Section
+    # Scrolling Memories
     media_folder = "assets/media"
     if os.path.exists(media_folder):
         media_files = sorted(
@@ -129,20 +138,18 @@ if page == "Wedding Card":
     else:
         st.warning("Media folder not found. Please create 'assets/media' and add images.")
 
-# === Wedding Program Page ===
-elif page == "Wedding Program":
+# === Tab 2: Wedding Program ===
+with tab2:
     st.markdown("<h1 style='text-align: center;'>Wedding Program 📜</h1>", unsafe_allow_html=True)
 
     img_path = "assets/wedding_program.jpeg"
     pdf_path = "assets/wedding_program.pdf"
 
-    # Show the image first
     if file_exists(img_path, "program image"):
         st.image(img_path, use_container_width=True, caption="Wedding Program (Pinch to Zoom on Mobile)")
     else:
         st.warning("Preview image not found.")
 
-    # Expandable PDF viewer (if PDF exists)
     if file_exists(pdf_path, "program file"):
         with st.expander("📄 Tap to View Full Wedding Program PDF"):
             show_pdf(pdf_path)
@@ -151,8 +158,8 @@ elif page == "Wedding Program":
     else:
         st.warning("Wedding program PDF not found.")
 
-# === Wedding Navigation Page ===
-elif page == "Wedding Navigation":
+# === Tab 3: Wedding Navigation ===
+with tab3:
     st.markdown("<h1 style='text-align: center;'>Navigate to the Wedding Venues 📍</h1>", unsafe_allow_html=True)
     st.markdown("### 📌 Select a destination below to begin navigation:")
 
@@ -261,8 +268,8 @@ elif page == "Wedding Navigation":
     """
     components.html(html_string, height=650)
 
-# === Live Stream Page ===
-elif page == "Live Stream 🎥":
+# === Tab 4: Live Stream ===
+with tab4:
     st.markdown("<h1 style='text-align: center;'>🎥 Victor & Joy's Wedding – Live Stream</h1>", unsafe_allow_html=True)
     st.markdown("Watch the wedding live on Facebook below:")
 
