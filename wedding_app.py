@@ -29,26 +29,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# === Custom CSS for Smaller Tabs ===
-st.markdown("""
-    <style>
-        .streamlit-expanderHeader {
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-        .stTabs [role='tab'] {
-            font-size: 0.8em;
-            padding: 6px 12px;
-        }
-        .stTabs {
-            font-size: 0.8em;
-        }
-        .css-1n1zfgf {
-            height: 40px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 # === Helper Functions ===
 def show_pdf(file_path):
     with open(file_path, "rb") as f:
