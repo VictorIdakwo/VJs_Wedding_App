@@ -248,18 +248,50 @@ with tab3:
     """
     components.html(html_string, height=650)
 
-# === Tab 4: Live Stream ===
 with tab4:
     st.markdown("<h1 style='text-align: center;'>🎥 Victor & Joy's Wedding – Live Stream</h1>", unsafe_allow_html=True)
-    st.markdown("Watch the wedding live on Facebook below:")
+    st.markdown("Join us live at 1:00 PM on July 11, 2025! The stream will begin shortly...")
 
-    components.html("""
+    countdown_html = """
+    <div id="countdown-container" style="text-align:center;">
+        <h2 id="countdown" style="color:#d63384;"></h2>
+    </div>
+
+    <div id="livestream" style="display:none; text-align:center;">
         <iframe 
             src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Fvictor.idakwo.5%2Fvideos%2F2637333386460126%2F&width=1280"  
             width="100%" height="720" style="border:none;overflow:hidden" scrolling="no" frameborder="0" 
             allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
         </iframe>
-    """, height=720)
+    </div>
+
+    <script>
+    const countdownElement = document.getElementById("countdown");
+    const livestreamDiv = document.getElementById("livestream");
+    const countdownContainer = document.getElementById("countdown-container");
+
+    const eventDate = new Date("2025-07-11T13:00:00+01:00").getTime();
+
+    const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = eventDate - now;
+
+        if (distance <= 0) {
+            clearInterval(interval);
+            countdownContainer.style.display = "none";
+            livestreamDiv.style.display = "block";
+        } else {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            countdownElement.innerHTML = `⏳ Live in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+    }, 1000);
+    </script>
+    """
+
+    components.html(countdown_html, height=750)
 
 # === Footer ===
 st.markdown("""
